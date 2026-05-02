@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useInView } from '@/hooks/useInView';
+import { CycleDataLink } from '@/components/ExternalAnchor';
 
 /**
  * SECTION 6 — RISK COMPRESSION
@@ -104,6 +105,10 @@ export default function RiskCompression() {
             showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-gray-400 text-sm uppercase tracking-widest">Risk Model Comparison</p>
+            <CycleDataLink />
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>

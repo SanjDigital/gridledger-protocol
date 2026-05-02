@@ -4,6 +4,8 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { InstitutionalModeProvider } from "./contexts/InstitutionalModeContext";
+import { InstitutionalModeToggle } from "./components/InstitutionalModeToggle";
 import Home from "./pages/Home";
 
 function Router() {
@@ -31,10 +33,15 @@ function App() {
       <ThemeProvider
         defaultTheme="dark"
       >
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
+        <InstitutionalModeProvider>
+          <TooltipProvider>
+            <InstitutionalModeToggle />
+            <div className="pt-20">
+              <Toaster />
+              <Router />
+            </div>
+          </TooltipProvider>
+        </InstitutionalModeProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

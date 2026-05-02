@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { useInView } from '@/hooks/useInView';
 
 /**
- * SECTION 10 — FINAL DECISION GATE + CTA
+ * SECTION 10 — FINAL DECISION GATE + MANDATE CAPTURE
  * Design Philosophy: Force institutional response
- * - Minimal, centered layout
  * - Binary choice presentation
- * - Integration request form
+ * - Upgraded to "Submit Deployment Mandate" (not "Request Integration")
+ * - Form fields for capital allocation, not lead collection
+ * - Final statement upgraded: "This standard now exists. Any deployment outside it becomes a recorded deviation."
  */
 export default function DecisionGate() {
   const { ref, isInView } = useInView();
@@ -15,10 +16,14 @@ export default function DecisionGate() {
   const [formData, setFormData] = useState({
     institutionName: '',
     deployableCapital: '',
-    riskTolerance: '',
-    nodeType: '',
+    targetSector: '',
+    riskWindow: '',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [trackingData, setTrackingData] = useState({
+    formStarted: false,
+    fieldsFilled: 0,
+  });
 
   useEffect(() => {
     if (isInView) {
@@ -32,6 +37,21 @@ export default function DecisionGate() {
       ...prev,
       [name]: value,
     }));
+    // Track field completion
+    const filledCount = Object.values({ ...formData, [name]: value }).filter(
+      (v) => v !== ''
+    ).length;
+    setTrackingData((prev) => ({
+      ...prev,
+      fieldsFilled: filledCount,
+    }));
+  };
+
+  const handleFormStart = () => {
+    setTrackingData((prev) => ({
+      ...prev,
+      formStarted: true,
+    }));
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -43,8 +63,8 @@ export default function DecisionGate() {
       setFormData({
         institutionName: '',
         deployableCapital: '',
-        riskTolerance: '',
-        nodeType: '',
+        targetSector: '',
+        riskWindow: '',
       });
       setSubmitted(false);
     }, 3000);
@@ -85,7 +105,7 @@ export default function DecisionGate() {
               </div>
             </div>
 
-            {/* Final statement */}
+            {/* Final statement - UPGRADED */}
             <div
               className={`text-center mb-12 transition-all duration-1000 delay-300 ${
                 showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
@@ -96,10 +116,9 @@ export default function DecisionGate() {
                   Status
                 </p>
                 <div className="space-y-3">
-                  <p className="text-white text-lg">The system is operational.</p>
-                  <p className="text-white text-lg">The audit trail exists.</p>
+                  <p className="text-white text-lg">This standard now exists.</p>
                   <p className="text-green-500 text-lg font-medium">
-                    The decision is institutional.
+                    Any deployment outside it becomes a recorded deviation.
                   </p>
                 </div>
               </div>
@@ -112,16 +131,19 @@ export default function DecisionGate() {
               }`}
             >
               <button
-                onClick={() => setFormStep('form')}
+                onClick={() => {
+                  setFormStep('form');
+                  handleFormStart();
+                }}
                 className="px-8 py-4 bg-green-500 text-black font-bold uppercase tracking-widest rounded-lg hover:bg-green-400 transition-colors"
               >
-                Request Node Integration
+                Submit Deployment Mandate
               </button>
             </div>
           </>
         ) : (
           <>
-            {/* Integration Request Form */}
+            {/* Mandate Capture Form */}
             <div
               className={`transition-all duration-1000 ${
                 showContent ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
@@ -131,14 +153,26 @@ export default function DecisionGate() {
                 <div className="text-center py-12">
                   <div className="text-5xl mb-4">✓</div>
                   <h3 className="text-2xl font-bold text-white mb-2">
-                    Request Received
+                    Mandate Received
                   </h3>
-                  <p className="text-gray-400">
-                    Our verification team will contact you within 24 hours.
+                  <p className="text-gray-400 mb-4">
+                    Capital deployment mandate logged in institutional record.
+                  </p>
+                  <p className="text-green-500 text-sm font-mono">
+                    Verification team will initiate integration within 24 hours.
                   </p>
                 </div>
               ) : (
-                <form onSubmit={handleFormSubmit} className="space-y-6">
+                <form onSubmit={handleFormSubmit} className="space-y-6" onFocus={handleFormStart}>
+                  <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 mb-6">
+                    <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">
+                      Deployment Mandate Submission
+                    </p>
+                    <p className="text-gray-500 text-sm">
+                      Complete this form to authorize capital deployment into the verified GridLedger system.
+                    </p>
+                  </div>
+
                   <div>
                     <label className="block text-gray-400 text-sm uppercase tracking-widest mb-3">
                       Institution Name
@@ -156,52 +190,58 @@ export default function DecisionGate() {
 
                   <div>
                     <label className="block text-gray-400 text-sm uppercase tracking-widest mb-3">
-                      Deployable Capital (MWK)
+                      Deployable Capital Range (MWK)
                     </label>
-                    <input
-                      type="text"
+                    <select
                       name="deployableCapital"
                       value={formData.deployableCapital}
                       onChange={handleFormChange}
                       required
-                      className="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:border-green-500 focus:outline-none transition-colors"
-                      placeholder="e.g., 50,000,000"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-400 text-sm uppercase tracking-widest mb-3">
-                      Risk Tolerance
-                    </label>
-                    <select
-                      name="riskTolerance"
-                      value={formData.riskTolerance}
-                      onChange={handleFormChange}
-                      required
                       className="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:outline-none transition-colors"
                     >
-                      <option value="">Select risk tolerance</option>
-                      <option value="conservative">Conservative</option>
-                      <option value="moderate">Moderate</option>
-                      <option value="aggressive">Aggressive</option>
+                      <option value="">Select capital range</option>
+                      <option value="10m-50m">10M - 50M MWK</option>
+                      <option value="50m-100m">50M - 100M MWK</option>
+                      <option value="100m-500m">100M - 500M MWK</option>
+                      <option value="500m-1b">500M - 1B MWK</option>
+                      <option value="1b+">1B+ MWK</option>
                     </select>
                   </div>
 
                   <div>
                     <label className="block text-gray-400 text-sm uppercase tracking-widest mb-3">
-                      Node Type
+                      Target Sector
                     </label>
                     <select
-                      name="nodeType"
-                      value={formData.nodeType}
+                      name="targetSector"
+                      value={formData.targetSector}
                       onChange={handleFormChange}
                       required
                       className="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:outline-none transition-colors"
                     >
-                      <option value="">Select node type</option>
-                      <option value="production">Production</option>
-                      <option value="staging">Staging</option>
-                      <option value="development">Development</option>
+                      <option value="">Select sector</option>
+                      <option value="agriculture">Agriculture</option>
+                      <option value="energy">Energy</option>
+                      <option value="processing">Processing</option>
+                      <option value="multi">Multi-sector</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-400 text-sm uppercase tracking-widest mb-3">
+                      Risk Window Preference
+                    </label>
+                    <select
+                      name="riskWindow"
+                      value={formData.riskWindow}
+                      onChange={handleFormChange}
+                      required
+                      className="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:outline-none transition-colors"
+                    >
+                      <option value="">Select preference</option>
+                      <option value="24h">24 Hour Cycles</option>
+                      <option value="48h">48 Hour Cycles</option>
+                      <option value="custom">Custom</option>
                     </select>
                   </div>
 
@@ -210,7 +250,7 @@ export default function DecisionGate() {
                       type="submit"
                       className="flex-1 px-6 py-3 bg-green-500 text-black font-bold uppercase tracking-widest rounded-lg hover:bg-green-400 transition-colors"
                     >
-                      Submit Request
+                      Submit Mandate
                     </button>
                     <button
                       type="button"
@@ -219,6 +259,12 @@ export default function DecisionGate() {
                     >
                       Back
                     </button>
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-800">
+                    <p className="text-gray-500 text-xs">
+                      <span className="text-green-500 font-mono">{trackingData.fieldsFilled}/4</span> fields completed
+                    </p>
                   </div>
                 </form>
               )}

@@ -6,6 +6,7 @@ import VerificationLayer from '@/components/sections/VerificationLayer';
 import RiskCompression from '@/components/sections/RiskCompression';
 import CapitalVelocity from '@/components/sections/CapitalVelocity';
 import FiduciaryShift from '@/components/sections/FiduciaryShift';
+import CognitiveFriction from '@/components/sections/CognitiveFriction';
 import GlassBox from '@/components/sections/GlassBox';
 import DecisionGate from '@/components/sections/DecisionGate';
 
@@ -14,10 +15,11 @@ import DecisionGate from '@/components/sections/DecisionGate';
  * 
  * Scroll Flow: [Hero] → [Problem] → [Breakthrough] → [System] → [Verification Layer] 
  *             → [Risk Compression] → [Velocity Engine] → [Fiduciary Standard] 
- *             → [Glass Box Dashboard] → [Final Decision Gate]
+ *             → [COGNITIVE FRICTION] → [Glass Box Dashboard] → [Final Decision Gate]
  * 
  * Each section = one full screen (100vh)
  * Snap-to-section scrolling for controlled pacing
+ * Cognitive friction moment forces institutional reconciliation
  * No clutter. No distractions. Controlled narrative flow.
  */
 export default function Home() {
@@ -47,10 +49,13 @@ export default function Home() {
       {/* Section 8: Fiduciary Shift - Institutional Pressure */}
       <FiduciaryShift />
 
-      {/* Section 9: Glass Box - Live System */}
+      {/* Section 9: Cognitive Friction - Forces Institutional Reconciliation */}
+      <CognitiveFriction />
+
+      {/* Section 10: Glass Box - Live System */}
       <GlassBox />
 
-      {/* Section 10: Final Decision Gate + CTA */}
+      {/* Section 11: Final Decision Gate + Mandate Capture */}
       <DecisionGate />
     </div>
   );

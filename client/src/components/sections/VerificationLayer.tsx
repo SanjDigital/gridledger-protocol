@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useInView } from '@/hooks/useInView';
+import { LiveCycleFeed } from '@/components/LiveCycleFeed';
+import { AuditTrailLink } from '@/components/ExternalAnchor';
 
 /**
  * SECTION 5 — THE VERIFICATION LAYER
@@ -130,26 +132,19 @@ export default function VerificationLayer() {
           </p>
         </div>
 
-        {/* Live verification example */}
+        {/* Live verification feed */}
         <div
-          className={`bg-gray-900 border border-gray-800 rounded-lg p-8 transition-all duration-1000 delay-500 ${
+          className={`transition-all duration-1000 delay-500 ${
             showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
-          <div className="space-y-4 font-mono text-sm">
-            <div className="flex items-center gap-3">
-              <span className="text-gray-600">Cycle_ID:</span>
-              <span className="text-white">10442</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-gray-600">Seal:</span>
-              <span className="text-green-500 break-all">{displayHash}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-gray-600">Status:</span>
-              <span className="text-green-500 font-medium">✓ VERIFIED</span>
-            </div>
+          <div className="mb-4 flex items-center justify-between">
+            <p className="text-gray-400 text-sm uppercase tracking-widest">
+              Live Cycle Feed (Real-time Verification)
+            </p>
+            <AuditTrailLink />
           </div>
+          <LiveCycleFeed maxCycles={5} />
         </div>
       </div>
     </section>

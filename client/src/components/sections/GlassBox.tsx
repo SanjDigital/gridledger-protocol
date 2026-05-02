@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useInView } from '@/hooks/useInView';
+import { CycleReplayLink } from '@/components/ExternalAnchor';
 
 /**
  * SECTION 9 — THE GLASS BOX (LIVE SYSTEM)
@@ -58,9 +59,12 @@ export default function GlassBox() {
                 </p>
                 <p className="text-white font-mono text-sm">Node ID: GL-1-PROD-2026</p>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
-                <p className="text-green-500 text-sm font-medium">ACTIVE</p>
+              <div className="flex items-center gap-4">
+                <CycleReplayLink />
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
+                  <p className="text-green-500 text-sm font-medium">ACTIVE</p>
+                </div>
               </div>
             </div>
           </div>
