@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useInView } from '@/hooks/useInView';
+import { trpc } from '@/lib/trpc';
+import { nanoid } from 'nanoid';
 
 /**
  * SECTION 10 — FINAL DECISION GATE + MANDATE CAPTURE
@@ -24,6 +26,8 @@ export default function DecisionGate() {
     formStarted: false,
     fieldsFilled: 0,
   });
+  const [sessionId] = useState(() => nanoid());
+  const mandateSubmit = trpc.mandate.submit.useMutation();
 
   useEffect(() => {
     if (isInView) {
@@ -54,8 +58,23 @@ export default function DecisionGate() {
     }));
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Log form submission to mandate log
+    try {
+      await mandateSubmit.mutateAsync({
+        institutionName: formData.institutionName,
+        authorisationLevel: 'Credit Officer',
+        capitalRange: (formData.deployableCapital as any) || '<10M',
+        sector: formData.targetSector,
+        modeViewed: 'Executive',
+        declarationText: 'This standard now exists. Any deployment outside it becomes a recorded deviation.',
+      });
+    } catch (error) {
+      console.error('Failed to submit mandate:', error);
+    }
+    
     setSubmitted(true);
     // Reset form after 3 seconds
     setTimeout(() => {

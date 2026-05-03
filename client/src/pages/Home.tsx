@@ -6,7 +6,7 @@ import VerificationLayer from '@/components/sections/VerificationLayer';
 import RiskCompression from '@/components/sections/RiskCompression';
 import CapitalVelocity from '@/components/sections/CapitalVelocity';
 import FiduciaryShift from '@/components/sections/FiduciaryShift';
-import CognitiveFriction from '@/components/sections/CognitiveFriction';
+import CognitiveFrictionHardened from '@/components/sections/CognitiveFrictionHardened';
 import GlassBox from '@/components/sections/GlassBox';
 import DecisionGate from '@/components/sections/DecisionGate';
 
@@ -49,8 +49,8 @@ export default function Home() {
       {/* Section 8: Fiduciary Shift - Institutional Pressure */}
       <FiduciaryShift />
 
-      {/* Section 9: Cognitive Friction - Forces Institutional Reconciliation */}
-      <CognitiveFriction />
+      {/* Section 9: Cognitive Friction - Hardened (Requires Explicit Interaction) */}
+      <CognitiveFrictionHardened />
 
       {/* Section 10: Glass Box - Live System */}
       <GlassBox />
