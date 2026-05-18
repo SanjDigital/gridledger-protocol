@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useInView } from '@/hooks/useInView';
+import { trpc } from '@/lib/trpc';
 
 /**
  * SECTION 10 — FINAL DECISION GATE + MANDATE CAPTURE
@@ -8,6 +9,7 @@ import { useInView } from '@/hooks/useInView';
  * - Upgraded to "Submit Deployment Mandate" (not "Request Integration")
  * - Form fields for capital allocation, not lead collection
  * - Final statement upgraded: "This standard now exists. Any deployment outside it becomes a recorded deviation."
+ * - NOW OPERATIONAL: Form submits to backend mandate logging system
  */
 export default function DecisionGate() {
   const { ref, isInView } = useInView();
@@ -15,14 +17,44 @@ export default function DecisionGate() {
   const [formStep, setFormStep] = useState('choice'); // 'choice' or 'form'
   const [formData, setFormData] = useState({
     institutionName: '',
-    deployableCapital: '',
-    targetSector: '',
-    riskWindow: '',
+    authorisationLevel: '',
+    capitalRange: '',
+    sector: '',
+    modeViewed: 'Executive' as const,
+    declarationText: 'I authorize capital deployment into the GridLedger Protocol GL-1 system.',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [trackingData, setTrackingData] = useState({
     formStarted: false,
     fieldsFilled: 0,
+  });
+
+  // tRPC mutation for mandate submission
+  const mandateSubmit = trpc.mandate.submit.useMutation({
+    onSuccess: (data) => {
+      setSubmitted(true);
+      console.log('Mandate submitted:', data.submissionId);
+      // Reset form after 3 seconds
+      setTimeout(() => {
+        setFormStep('choice');
+        setFormData({
+          institutionName: '',
+          authorisationLevel: '',
+          capitalRange: '',
+          sector: '',
+          modeViewed: 'Executive',
+          declarationText: 'I authorize capital deployment into the GridLedger Protocol GL-1 system.',
+        });
+        setSubmitted(false);
+        setError(null);
+      }, 3000);
+    },
+    onError: (err) => {
+      const errorMessage = err.message || 'Failed to submit mandate. Please try again.';
+      setError(errorMessage);
+      console.error('Mandate submission error:', err);
+    },
   });
 
   useEffect(() => {
@@ -45,6 +77,7 @@ export default function DecisionGate() {
       ...prev,
       fieldsFilled: filledCount,
     }));
+    setError(null);
   };
 
   const handleFormStart = () => {
@@ -56,18 +89,23 @@ export default function DecisionGate() {
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setFormStep('choice');
-      setFormData({
-        institutionName: '',
-        deployableCapital: '',
-        targetSector: '',
-        riskWindow: '',
-      });
-      setSubmitted(false);
-    }, 3000);
+    
+    // Validate required fields
+    if (!formData.institutionName || !formData.authorisationLevel || !formData.capitalRange || !formData.sector) {
+      setError('All fields are required');
+      return;
+    }
+
+    // Submit mandate to backend
+    mandateSubmit.mutate({
+      institutionName: formData.institutionName,
+      authorisationLevel: formData.authorisationLevel as "Board" | "Risk Committee" | "Credit Officer" | "IT Operations",
+      capitalRange: formData.capitalRange as "<10M" | "10M-100M" | "100M-1B" | ">1B",
+      sector: formData.sector,
+      modeViewed: formData.modeViewed,
+      declarationText: formData.declarationText,
+      anchorLinksOpened: [],
+    });
   };
 
   return (
@@ -173,6 +211,12 @@ export default function DecisionGate() {
                     </p>
                   </div>
 
+                  {error && (
+                    <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                      <p className="text-red-400 text-sm">{error}</p>
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-gray-400 text-sm uppercase tracking-widest mb-3">
                       Institution Name
@@ -183,28 +227,49 @@ export default function DecisionGate() {
                       value={formData.institutionName}
                       onChange={handleFormChange}
                       required
-                      className="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:border-green-500 focus:outline-none transition-colors"
+                      disabled={mandateSubmit.isPending}
+                      className="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:border-green-500 focus:outline-none transition-colors disabled:opacity-50"
                       placeholder="Enter institution name"
                     />
                   </div>
 
                   <div>
                     <label className="block text-gray-400 text-sm uppercase tracking-widest mb-3">
-                      Deployable Capital Range (MWK)
+                      Authorisation Level
                     </label>
                     <select
-                      name="deployableCapital"
-                      value={formData.deployableCapital}
+                      name="authorisationLevel"
+                      value={formData.authorisationLevel}
                       onChange={handleFormChange}
                       required
-                      className="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:outline-none transition-colors"
+                      disabled={mandateSubmit.isPending}
+                      className="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:outline-none transition-colors disabled:opacity-50"
+                    >
+                      <option value="">Select authorisation level</option>
+                      <option value="Board">Board</option>
+                      <option value="Risk Committee">Risk Committee</option>
+                      <option value="Credit Officer">Credit Officer</option>
+                      <option value="IT Operations">IT Operations</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-400 text-sm uppercase tracking-widest mb-3">
+                      Deployable Capital Range
+                    </label>
+                    <select
+                      name="capitalRange"
+                      value={formData.capitalRange}
+                      onChange={handleFormChange}
+                      required
+                      disabled={mandateSubmit.isPending}
+                      className="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:outline-none transition-colors disabled:opacity-50"
                     >
                       <option value="">Select capital range</option>
-                      <option value="10m-50m">10M - 50M MWK</option>
-                      <option value="50m-100m">50M - 100M MWK</option>
-                      <option value="100m-500m">100M - 500M MWK</option>
-                      <option value="500m-1b">500M - 1B MWK</option>
-                      <option value="1b+">1B+ MWK</option>
+                      <option value="<10M">Less than 10M</option>
+                      <option value="10M-100M">10M - 100M</option>
+                      <option value="100M-1B">100M - 1B</option>
+                      <option value=">1B">Greater than 1B</option>
                     </select>
                   </div>
 
@@ -213,49 +278,44 @@ export default function DecisionGate() {
                       Target Sector
                     </label>
                     <select
-                      name="targetSector"
-                      value={formData.targetSector}
+                      name="sector"
+                      value={formData.sector}
                       onChange={handleFormChange}
                       required
-                      className="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:outline-none transition-colors"
+                      disabled={mandateSubmit.isPending}
+                      className="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:outline-none transition-colors disabled:opacity-50"
                     >
                       <option value="">Select sector</option>
-                      <option value="agriculture">Agriculture</option>
-                      <option value="energy">Energy</option>
-                      <option value="processing">Processing</option>
-                      <option value="multi">Multi-sector</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-400 text-sm uppercase tracking-widest mb-3">
-                      Risk Window Preference
-                    </label>
-                    <select
-                      name="riskWindow"
-                      value={formData.riskWindow}
-                      onChange={handleFormChange}
-                      required
-                      className="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-white focus:border-green-500 focus:outline-none transition-colors"
-                    >
-                      <option value="">Select preference</option>
-                      <option value="24h">24 Hour Cycles</option>
-                      <option value="48h">48 Hour Cycles</option>
-                      <option value="custom">Custom</option>
+                      <option value="Agriculture">Agriculture</option>
+                      <option value="Energy">Energy</option>
+                      <option value="Processing">Processing</option>
+                      <option value="Multi-sector">Multi-sector</option>
                     </select>
                   </div>
 
                   <div className="flex gap-4 pt-4">
                     <button
                       type="submit"
-                      className="flex-1 px-6 py-3 bg-green-500 text-black font-bold uppercase tracking-widest rounded-lg hover:bg-green-400 transition-colors"
+                      disabled={mandateSubmit.isPending}
+                      className="flex-1 px-6 py-3 bg-green-500 text-black font-bold uppercase tracking-widest rounded-lg hover:bg-green-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      Submit Mandate
+                      {mandateSubmit.isPending ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                          Submitting...
+                        </>
+                      ) : (
+                        'Submit Mandate'
+                      )}
                     </button>
                     <button
                       type="button"
-                      onClick={() => setFormStep('choice')}
-                      className="flex-1 px-6 py-3 bg-gray-900 border border-gray-800 text-white font-bold uppercase tracking-widest rounded-lg hover:border-gray-700 transition-colors"
+                      onClick={() => {
+                        setFormStep('choice');
+                        setError(null);
+                      }}
+                      disabled={mandateSubmit.isPending}
+                      className="flex-1 px-6 py-3 bg-gray-900 border border-gray-800 text-white font-bold uppercase tracking-widest rounded-lg hover:border-gray-700 transition-colors disabled:opacity-50"
                     >
                       Back
                     </button>
