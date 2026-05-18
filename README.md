@@ -1,3 +1,4 @@
+```markdown
 # GridLedger Protocol GL-1 — Verification Governance Layer
 
 **GridLedger transforms energy-gated production into replayable financial evidence.**
@@ -100,6 +101,11 @@ git clone https://github.com/SanjDigital/gridledger-protocol.git
 cd gridledger-protocol
 pnpm install
 pnpm dev
+```
+
+The reference interface will be available at `http://localhost:3000`.
+
+---
 
 ## License
 
@@ -124,3 +130,13 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+## Contact
+
+**GridLedger IP Ltd — Verification Authority (ISIC 7490)**  
+Lilongwe, Malawi  
+Repository: [github.com/SanjDigital/gridledger-protocol](https://github.com/SanjDigital/gridledger-protocol)  
+Trust Anchor: [github.com/SanjDigital/grid-ledger-insights](https://github.com/SanjDigital/grid-ledger-insights)
+```
