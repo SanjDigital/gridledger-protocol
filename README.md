@@ -15,6 +15,7 @@ This repository contains the **GL-1 Protocol reference implementation and verifi
 | **gridledger-dashboard** | Operational Dashboard — live verification interface (public, Vercel-deployed) |
 | **gridledger-protocol** (this repo) | Protocol Reference — governance interface specification, mandate submission reference |
 
+The verification layer is designed to remain independently inspectable even if the operational backend becomes unavailable.
 ---
 
 ## Entity
