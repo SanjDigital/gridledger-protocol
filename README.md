@@ -107,6 +107,22 @@ CREATE TABLE friction_analytics (
 
 ---
 
+## Operational/Verification Split
+
+This repository contains the **verification layer** of the GL-1 Protocol. The verification layer is designed to function independently:
+
+- **No backend connectivity required** — All governance documents, seal chains, and verification code are self-contained
+- **No API keys or credentials** — The repository contains no secrets or operational dependencies
+- **Independent auditability** — Any institution can clone, deploy, and verify the protocol without access to GridLedger infrastructure
+
+### Mandate Submission
+
+Institutional reviewers who wish to log engagement with this reference set may submit through the authenticated operational channel at `[operational endpoint]`. The verification layer contained in this repository functions independently of mandate logging and does not require backend connectivity to support independent audit or replay.
+
+**Mandate submission is an operational function, not a verification function.** The DecisionGate form in this repository serves as a reference interface for institutional governance. Actual submissions flow through the authenticated operational channel to preserve the operational/verification split.
+
+---
+
 ## The Governance Interface
 
 ### 11 Scroll Sections
@@ -125,7 +141,7 @@ Each section is 100vh (full screen) with scroll-snap enabled for controlled paci
 | 8. Fiduciary Shift | Institutional pressure | Binary fork forcing choice |
 | 9. **Cognitive Friction** | **BLOCKS SCROLL** | **Requires explicit interaction** |
 | 10. Glass Box | Live system | Verification dashboard |
-| 11. Decision Gate | Mandate capture | Form submission → logs to DB |
+| 11. Decision Gate | Mandate capture | Reference interface (operational submissions via authenticated channel) |
 
 ### The Friction Moment (Section 9)
 
